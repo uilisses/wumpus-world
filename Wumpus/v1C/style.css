@@ -1,0 +1,106 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    background-color: #f0f0f0;
+}
+
+h1 {
+    color: #333;
+}
+
+.controls {
+    margin-bottom: 20px;
+}
+
+.game-info button{
+    margin-right: 10px;
+}
+
+#gameBoard {
+    display: grid;
+    border: 2px solid #333;
+    background-color: #fff;
+}
+
+.cell {
+    width: 50px;
+    height: 50px;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 10px;
+    box-sizing: border-box;
+    position: relative;
+    user-select: none;
+    background-color: #333; /* Cor para células não visitadas */
+    transition: background-color 0.5s ease;
+}
+
+.cell.visited {
+    background-color: #fff; /* Cor para células visitadas */
+}
+
+.agent {
+    background-color: #007bff;
+    border-radius: 50%;
+    width: 80%;
+    height: 80%;
+    position: absolute;
+    z-index: 1;
+}
+
+.perception {
+    font-weight: bold;
+    font-size: 0.8em;
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+}
+
+.breeze {
+    color: #00aaff;
+}
+
+.stench {
+    color: #ff4500;
+}
+
+.glow {
+    color: gold;
+}
+
+.wumpus {
+    background-color: red;
+}
+
+.pit {
+    background-color: #333;
+}
+
+.gold {
+    background-color: gold;
+}
+
+.agent-controls {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.control-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.agent-controls button {
+    padding: 10px 15px;
+    cursor: pointer;
+}

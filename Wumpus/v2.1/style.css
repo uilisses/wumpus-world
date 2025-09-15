@@ -1,0 +1,195 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    background-color: #f0f0f0;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.game-stats {
+    display: flex;
+    gap: 50px; /* Espaço entre "Pontos" e "Movimentos" */
+    font-size: 1.2em;
+    font-weight: bold;
+    /* margin-bottom: 20px; */
+}
+
+.controls {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.game-info {
+    display: flex;
+    flex-direction: column; /* Coloca os elementos um abaixo do outro */
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+#gameBoard {
+    display: grid;
+    border: 2px solid #333;
+    background-color: #333; /* Cor para células não visitadas */
+}
+
+.cell {
+    width: 50px;
+    height: 50px;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 10px;
+    box-sizing: border-box;
+    position: relative;
+    user-select: none;
+    transition: background-color 0.5s ease;
+}
+
+.cell.visited {
+    background-color: #fff; /* Cor para células visitadas */
+}
+
+/* Estilo antigo do agente */
+/* .agent {
+    background-color: #007bff;
+    border-radius: 50%;
+    width: 80%;
+    height: 80%;
+    position: absolute;
+    z-index: 1;
+} */
+
+.agent {
+    background-color: transparent; /* Remove a cor de fundo */
+    background-image: url('agent.png'); /* Caminho da imagem */
+    background-size: contain; /* Ajusta o tamanho da imagem ao container */
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 80%;
+    height: 80%;
+    position: absolute;
+    z-index: 1;
+    border-radius: 0; /* Remove o círculo, caso ainda exista */
+}
+
+.perception {
+    font-weight: bold;
+    font-size: 2em;
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+}
+
+.breeze {
+    color: #00aaff;
+}
+
+.stench {
+    color: #ff4500;
+}
+
+/* Percepção para o ouro */
+/* .glow {
+    color: gold;
+} */
+
+.agent-controls, .auto-agent-controls {
+    /* margin-top: 10px; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.control-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.control-game {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+}
+
+button {
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+p#gameMessage {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+#resetGame, #resetBoard, #exitGame, #modeToggle {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 0;
+  letter-spacing: 1.2px;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  color: hsl(0, 0%, 100%);
+  cursor: pointer;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-weight: bold;
+}
+
+/* #resetGame:active #resetBoard:active, #exitGame:active {
+  background-color: rgb(255, 56, 86);
+  box-shadow: rgb(201, 46, 70) 0px 0px 0px 0px;
+  transform: translateY(5px);
+  transition: 200ms;
+} */
+
+#resetGame {
+  background-color: rgb(64, 139, 62);
+  box-shadow: rgb(45, 95, 43) 0px 10px 0px 0px;
+}
+
+#resetBoard {
+  background-color: rgb(74, 110, 156);
+  box-shadow: rgb(54, 89, 134) 0px 10px 0px 0px;
+}
+
+#exitGame {
+  background-color: rgb(255, 56, 86);
+  box-shadow: rgb(201, 46, 70) 0px 10px 0px 0px;
+}
+
+#modeToggle {
+  background-color: rgb(106, 114, 109);
+  box-shadow: rgb(54, 54, 54) 0px 10px 0px 0px;
+  margin-bottom: 10px;
+}
+
+#resetGame:hover {
+  box-shadow: rgb(45, 95, 43) 0px 7px 0px 0px;
+}
+
+#resetBoard:hover {
+  box-shadow: rgb(54, 89, 134) 0px 7px 0px 0px;
+}
+
+#exitGame:hover {
+  box-shadow: rgb(201, 46, 70) 0px 7px 0px 0px;
+}

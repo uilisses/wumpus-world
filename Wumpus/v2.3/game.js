@@ -1,0 +1,459 @@
+// game.js
+const boardSizeInput = document.getElementById('boardSize');
+const startGameBtn = document.getElementById('startGame');
+const gameInfoDiv = document.querySelector('.game-info');
+const resetGameBtn = document.getElementById('resetGame');
+const resetBoardBtn = document.getElementById('resetBoard');
+const modeToggleBtn = document.getElementById('modeToggle');
+const exitGameBtn = document.getElementById('exitGame');
+const gameBoardDiv = document.getElementById('gameBoard');
+const agentControlsDiv = document.querySelector('.agent-controls');
+const autoAgentControlsDiv = document.querySelector('.auto-agent-controls');
+const agentV1Btn = document.getElementById('agentV1');
+const gameMessage = document.getElementById('gameMessage');
+const scoreDisplay = document.getElementById('scoreDisplay');
+const movesDisplay = document.getElementById('movesDisplay');
+
+let wumpusWorld;
+let gameMode = 'manual';
+let hasGold = false;
+let autoPlayInterval;
+let score = 0;
+let moves = 0;
+let rounds = 0;
+let finalStatus = '';
+let relatorio = new Map();
+let velocity = 25;
+
+// Evento para iniciar o jogo
+startGameBtn.addEventListener('click', () => {
+    const size = parseInt(boardSizeInput.value);
+    if (size >= 4 && size <= 20) {
+        wumpusWorld = new WumpusWorld(size);
+        wumpusWorld.board[0][0].isVisited = true;
+        
+        // Resetar placar ao iniciar um novo jogo
+        score = 0;
+        moves = 0;
+        updateGameStats();
+
+        renderBoard();
+        
+        startGameBtn.style.display = 'none';
+        boardSizeInput.disabled = true;
+        gameInfoDiv.style.display = 'flex';
+        
+        gameMessage.textContent = 'Jogo iniciado. Mova o agente.';
+        updateUIForMode();
+    } else {
+        alert('O tamanho do tabuleiro deve ser entre 4 e 20.');
+    }
+});
+
+function resetScores() {
+    score = 0;
+    moves = 0;
+    updateGameStats();
+}
+
+// Evento para resetar o jogo
+resetGameBtn.addEventListener('click', () => {
+    stopAutoPlay();
+    wumpusWorld.reset();
+    wumpusWorld.board[0][0].isVisited = true;
+    
+    // Resetar placar ao resetar o jogo
+    resetScores();
+    
+    renderBoard();
+    gameMessage.textContent = 'Novo jogo criado. Mova o agente.';
+    hasGold = false;
+    updateUIForMode();
+});
+
+// Evento para resetar o Board
+resetBoardBtn.addEventListener('click', () => {
+    stopAutoPlay();
+    resetAgentPosition(); 
+    
+    // Resetar placar ao resetar o jogo
+    resetScores();
+    
+    renderBoard();
+    gameMessage.textContent = 'Jogo reiniciado. Mova o agente.';
+    hasGold = false;
+    updateUIForMode();
+});
+
+// Evento para alternar o modo
+modeToggleBtn.addEventListener('click', () => {
+    stopAutoPlay();
+    resetAgentPosition(); 
+    renderBoard();
+    resetScores();
+    gameMode = gameMode === 'manual' ? 'agente' : 'manual';
+    modeToggleBtn.textContent = `Modo Atual: ${gameMode.charAt(0).toUpperCase() + gameMode.slice(1)}`;
+    gameMessage.textContent = `Modo alterado para ${gameMode}.`;
+    updateUIForMode();
+});
+
+// Evento para sair do jogo
+exitGameBtn.addEventListener('click', () => {
+    stopAutoPlay();
+    window.location.reload();
+});
+
+// Lógica para controle do agente via teclado
+document.addEventListener('keydown', (event) => {
+    if (gameMode === 'manual' && wumpusWorld && !isGameOver()) {
+        switch (event.key) {
+            case 'ArrowUp':
+                moveAgent('north');
+                break;
+            case 'ArrowDown':
+                moveAgent('south');
+                break;
+            case 'ArrowLeft':
+                moveAgent('west');
+                break;
+            case 'ArrowRight':
+                moveAgent('east');
+                break;
+        }
+    }
+});
+
+// Função para renderizar o tabuleiro
+function renderBoard() {
+    gameBoardDiv.innerHTML = '';
+    gameBoardDiv.style.gridTemplateColumns = `repeat(${wumpusWorld.size}, 1fr)`;
+    gameBoardDiv.style.gridTemplateRows = `repeat(${wumpusWorld.size}, 1fr)`;
+
+    for (let y = 0; y < wumpusWorld.size; y++) {
+        for (let x = 0; x < wumpusWorld.size; x++) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+
+            const currentCell = wumpusWorld.board[y][x];
+
+            // Adiciona a classe 'visited' se a célula foi visitada
+            if (currentCell.isVisited) {
+                cell.classList.add('visited');
+                currentCell.perceptions.forEach(p => {
+                    const perceptionDiv = document.createElement('div');
+                    perceptionDiv.classList.add('perception', p);
+                    perceptionDiv.textContent = p.charAt(0).toUpperCase();
+                    cell.appendChild(perceptionDiv);
+                });
+
+                if (currentCell.objects.includes('wumpus')) {
+                    cell.textContent = '👹';
+                }
+                if (currentCell.objects.includes('pit')) {
+                    cell.textContent = '🕳️';
+                }
+                if (currentCell.objects.includes('gold')) {
+                    cell.textContent = '💰';
+                }
+            }
+            
+            if (wumpusWorld.agent.x === x && wumpusWorld.agent.y === y) {
+                const agentDiv = document.createElement('div');
+                agentDiv.classList.add('agent');
+                cell.appendChild(agentDiv);
+            }
+
+            gameBoardDiv.appendChild(cell);
+        }
+    }
+}
+
+// Lógica de movimento
+function moveAgent(direction) {
+    if (!wumpusWorld || isGameOver()) return;
+    
+    // Contabiliza movimentos fora do tabuleiro
+/*     score -= 1;
+    moves += 1;
+    updateGameStats(); */
+
+    const { x, y } = wumpusWorld.agent;
+    let newX = x;
+    let newY = y;
+
+    switch (direction) {
+        case 'north': newY--; break;
+        case 'south': newY++; break;
+        case 'west': newX--; break;
+        case 'east': newX++; break;
+    }
+
+    if (newX >= 0 && newX < wumpusWorld.size && newY >= 0 && newY < wumpusWorld.size) {
+        wumpusWorld.agent.x = newX;
+        wumpusWorld.agent.y = newY;
+        wumpusWorld.board[newY][newX].isVisited = true;
+        score -= 1; //retirar se quiser contabilizar movimentos foras do tabuleiro
+        moves += 1; //retirar se quiser contabilizar movimentos foras do tabuleiro
+        checkGameState();
+    } else {
+        score -= 0; //retirar se quiser contabilizar movimentos foras do tabuleiro
+        moves += 0; //retirar se quiser contabilizar movimentos foras do tabuleiro
+        /* gameMessage.textContent = 'Movimento inválido: fora do tabuleiro.'; */ //incluir se quiser contabilizar movimentos foras do tabuleiro
+    }
+    renderBoard();
+}
+
+// Checar o estado do jogo (vitória, derrota)
+function checkGameState() {
+    const { x, y } = wumpusWorld.agent;
+    const cellContent = wumpusWorld.board[y][x];
+
+    if (cellContent.objects.includes('pit')) {
+        score -= 1000;
+        gameMessage.textContent = 'Você caiu em um poço. Fim de jogo!';
+        gameMessage.style.color = "red";
+        finalStatus += 'Caiu no poço!';
+        /* stopAutoPlay(); */ //Parar agente
+        disableControls();
+        updateGameStats();
+        createRelatorio(rounds, score, moves, finalStatus);
+        if (gameMode === 'agente') {autoPlayOn();}
+        return;
+    }
+    
+    if (cellContent.objects.includes('wumpus')) {
+        score -= 1000;
+        gameMessage.textContent = 'Você foi devorado pelo Wumpus. Fim de jogo!';
+        gameMessage.style.color = "red";
+        finalStatus += 'Foi devorado pelo Wumpus!';
+        /* stopAutoPlay(); */ //Parar agente
+        disableControls();
+        updateGameStats();
+        createRelatorio(rounds, score, moves, finalStatus);
+        if (gameMode === 'agente') {autoPlayOn();}
+        return;
+    }
+
+    if (cellContent.objects.includes('gold') && !hasGold) {
+        score += 1000;
+        gameMessage.textContent = 'Você encontrou o Ouro! Agora retorne para a casa inicial.';
+        finalStatus = 'Encontrou o Ouro e ';
+        /* wumpusWorld.board[y][x].objects[0] = '';  //Retira o ouro do tabuleiro
+        console.log(y);
+        console.log(x); */
+        gameMessage.style.color = "blue";
+        hasGold = true;
+    }
+
+    if (hasGold && x === 0 && y === 0) {
+        score += 1000;
+        gameMessage.textContent = 'Você encontrou o ouro e retornou para a casa inicial. YOU WIN!!';
+        gameMessage.style.color = "green";
+        finalStatus += 'VENCEU!';
+        /* stopAutoPlay(); */ //Parar agente
+        disableControls();
+        createRelatorio(rounds, score, moves, finalStatus);
+        if (gameMode === 'agente') {autoPlayOn();}
+    }
+    updateGameStats();
+}
+
+// Função para atualizar os displays de Pontos e Movimentos
+function updateGameStats() {
+    scoreDisplay.textContent = `Pontos: ${score}`;
+    movesDisplay.textContent = `Movimentos: ${moves}`;
+}
+
+// ... o restante do código (revealBoard, hideBoard, resetAgentPosition, etc.) permanece o mesmo.
+
+// Função para revelar todo o tabuleiro
+function revealBoard() {
+    for (let y = 0; y < wumpusWorld.size; y++) {
+        for (let x = 0; x < wumpusWorld.size; x++) {
+            wumpusWorld.board[y][x].isVisited = true;
+        }
+    }
+    renderBoard();
+}
+
+// Função para ocultar o tabuleiro
+function hideBoard() {
+    for (let y = 0; y < wumpusWorld.size; y++) {
+        for (let x = 0; x < wumpusWorld.size; x++) {
+            wumpusWorld.board[y][x].isVisited = false;
+        }
+    }
+    wumpusWorld.board[0][0].isVisited = true;
+}
+
+// Função para resetar a posição do agente
+function resetAgentPosition() {
+    wumpusWorld.agent.x = 0;
+    wumpusWorld.agent.y = 0;
+    hasGold = false;
+    hideBoard();
+}
+
+// Lógica para o Agente V1 (Autônomo e Aleatório)
+function agentV1Logic() {
+    /* const possibleMoves = ['north', 'south', 'west', 'east'];
+    const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+    moveAgent(randomMove); */
+
+    const rules = [
+    {
+        condition: (perceptions) => perceptions.length === 0,
+        actions: ['north', 'south', 'east', 'west']
+    },
+    {
+        condition: (perceptions) => perceptions.includes('breeze'),
+        actions: ['north', 'south', 'east', 'west']
+    },
+    {
+        condition: (perceptions) => perceptions.includes('stench'),
+        actions: ['north', 'south', 'east', 'west']
+    },
+    {
+        condition: (perceptions) => perceptions.includes('breeze') && perceptions.includes('stench'),
+        actions: ['north', 'south', 'east', 'west']
+    }
+    ];
+
+    const currentCell = wumpusWorld.board[wumpusWorld.agent.y][wumpusWorld.agent.x];
+    const perceptions = currentCell.perceptions;
+
+    let possibleActions = [];
+    for (const rule of rules) {
+        if (rule.condition(perceptions)) {
+            possibleActions = possibleActions.concat(rule.actions);
+        }
+    }
+
+    // Se nenhuma regra for aplicável, usar ações padrão
+    if (possibleActions.length === 0) {
+        possibleActions = ['north', 'south', 'east', 'west'];
+    }
+
+    // Escolher aleatoriamente uma ação from the possible actions
+    const randomIndex = Math.floor(Math.random() * possibleActions.length);
+    const action = possibleActions[randomIndex];
+    moveAgent(action);
+}
+
+function startAutoPlay() {
+    stopAutoPlay(); 
+    gameMessage.textContent = 'Agente v1 iniciado...';
+    autoPlayInterval = setInterval(agentV1Logic, velocity); //velocidade do Agente
+}
+
+function stopAutoPlay() {
+    if (autoPlayInterval) {
+        clearInterval(autoPlayInterval);
+        autoPlayInterval = null;
+    }
+}
+
+// Verifica se o jogo já terminou
+function isGameOver() {
+    const message = gameMessage.textContent;
+    return message.includes('Fim de jogo!') || message.includes('Você VENCEU!');
+}
+
+// Função para habilitar ou desabilitar os controles de movimento
+function disableControls() {
+    agentControlsDiv.querySelectorAll('button').forEach(btn => {
+        btn.disabled = true;
+    });
+    document.removeEventListener('keydown', handleManualMove);
+}
+
+function enableControls() {
+    agentControlsDiv.querySelectorAll('button').forEach(btn => {
+        btn.disabled = false;
+    });
+    document.addEventListener('keydown', handleManualMove);
+}
+
+// Função auxiliar para o event listener
+function handleManualMove(event) {
+    if (gameMode === 'manual' && wumpusWorld) {
+        switch (event.key) {
+            case 'ArrowUp':
+                moveAgent('north');
+                break;
+            case 'ArrowDown':
+                moveAgent('south');
+                break;
+            case 'ArrowLeft':
+                moveAgent('west');
+                break;
+            case 'ArrowRight':
+                moveAgent('east');
+                break;
+        }
+    }
+}
+
+// Evento para o botão do Agente V1
+agentV1Btn.addEventListener('click', () => {
+    rounds = 0;
+    finalStatus = '';
+    console.clear();
+    autoPlayOn();
+});
+
+function autoPlayOn() {
+    if (rounds < 20) { //Quantidade de rounds do Agente
+        rounds += 1;
+        finalStatus = '';
+        resetScores();
+        resetAgentPosition();
+        renderBoard();
+        startAutoPlay();
+    } else {
+        showRelatorio();
+    }
+}
+
+function createRelatorio(r, s, m, fs) {
+    relatorio.set(r, { pontos: s, movimentos: m, status: fs });
+}
+
+function showRelatorio() {
+    for (const [round, dados] of relatorio.entries()) {
+        console.log(`Round ${round} - ` + `Pontos: ${dados.pontos} ` + `Movimentos: ${dados.movimentos} ` + `Conclusão: ${dados.status}`);
+        /* console.log(`Pontos: ${dados.pontos}`);
+        console.log(`Movimentos: ${dados.movimentos}`); */
+    }
+}
+
+// Controles para o modo manual
+document.getElementById('moveNorth').addEventListener('click', () => {
+    stopAutoPlay();
+    moveAgent('north');
+});
+document.getElementById('moveSouth').addEventListener('click', () => {
+    stopAutoPlay();
+    moveAgent('south');
+});
+document.getElementById('moveWest').addEventListener('click', () => {
+    stopAutoPlay();
+    moveAgent('west');
+});
+document.getElementById('moveEast').addEventListener('click', () => {
+    stopAutoPlay();
+    moveAgent('east');
+});
+
+// Atualiza a interface de acordo com o modo
+function updateUIForMode() {
+    if (gameMode === 'manual') {
+        agentControlsDiv.style.display = 'flex';
+        autoAgentControlsDiv.style.display = 'none';
+        enableControls();
+    } else {
+        agentControlsDiv.style.display = 'none';
+        autoAgentControlsDiv.style.display = 'flex';
+        disableControls(); // Garante que os controles manuais estejam desabilitados
+    }
+}

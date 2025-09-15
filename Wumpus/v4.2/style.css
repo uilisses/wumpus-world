@@ -1,0 +1,280 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    background-color: #f0f0f0;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.game-stats {
+    display: flex;
+    gap: 50px; /* Espaço entre "Pontos" e "Movimentos" */
+    font-size: 1.2em;
+    font-weight: bold;
+    /* margin-bottom: 20px; */
+}
+
+.controls {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.game-info {
+    display: flex;
+    flex-direction: column; /* Coloca os elementos um abaixo do outro */
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+#gameBoard {
+    display: grid;
+    border: 2px solid #333;
+    background-color: #333; /* Cor para células não visitadas */
+}
+
+.cell {
+    width: 50px;
+    height: 50px;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 10px;
+    box-sizing: border-box;
+    position: relative;
+    user-select: none;
+    transition: background-color 0.5s ease;
+}
+
+.cell.visited {
+    background-color: #fff; /* Cor para células visitadas */
+}
+
+/* Estilo antigo do agente */
+/* .agent {
+    background-color: #007bff;
+    border-radius: 50%;
+    width: 80%;
+    height: 80%;
+    position: absolute;
+    z-index: 1;
+} */
+
+.agent {
+    background-color: transparent; /* Remove a cor de fundo */
+    background-image: url('agent.png'); /* Caminho da imagem */
+    background-size: contain ; /* Ajusta o tamanho da imagem ao container */
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 80%;
+    height: 80%;
+    position: absolute;
+    z-index: 1;
+    border-radius: 0; /* Remove o círculo, caso ainda exista */
+}
+
+.perception {
+    font-weight: bold;
+    font-size: 0.8em;
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+}
+
+.breeze {
+    color: #00aaff;
+}
+
+.stench {
+    color: #ff4500;
+}
+
+.glow {
+    color: gold;
+}
+
+.agent-controls, .auto-agent-controls {
+    /* margin-top: 10px; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.control-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.control-game {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+}
+
+button {
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+p#gameMessage {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+#resetGame, #resetBoard, #exitGame, #modeToggle, #agentV1, #agentV2, #agentV3 {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 0;
+  letter-spacing: 1.2px;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  color: hsl(0, 0%, 100%);
+  cursor: pointer;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-weight: bold;
+}
+
+/* #resetGame:active #resetBoard:active, #exitGame:active {
+  background-color: rgb(255, 56, 86);
+  box-shadow: rgb(201, 46, 70) 0px 0px 0px 0px;
+  transform: translateY(5px);
+  transition: 200ms;
+} */
+
+#resetGame {
+  background-color: rgb(64, 139, 62);
+  box-shadow: rgb(45, 95, 43) 0px 10px 0px 0px;
+}
+
+#resetBoard {
+  background-color: rgb(74, 110, 156);
+  box-shadow: rgb(54, 89, 134) 0px 10px 0px 0px;
+}
+
+#exitGame {
+  background-color: rgb(255, 56, 86);
+  box-shadow: rgb(201, 46, 70) 0px 10px 0px 0px;
+}
+
+#agentV1, #agentV2, #agentV3 {
+  background-color: rgb(255, 242, 56);
+  box-shadow: rgb(144, 150, 61) 0px 10px 0px 0px;
+  color: black;
+  margin-bottom: 10px;
+}
+
+#modeToggle {
+  background-color: rgb(106, 114, 109);
+  box-shadow: rgb(54, 54, 54) 0px 10px 0px 0px;
+  margin-top: 20px;
+  margin-bottom: 5px;
+}
+
+#resetGame:hover {
+  box-shadow: rgb(45, 95, 43) 0px 7px 0px 0px;
+}
+
+#resetBoard:hover {
+  box-shadow: rgb(54, 89, 134) 0px 7px 0px 0px;
+}
+
+#exitGame:hover {
+  box-shadow: rgb(201, 46, 70) 0px 7px 0px 0px;
+}
+
+#scoreDisplay, #movesDisplay {
+    background: #0a0001;
+    font-size: 24px;
+    color: #F94F6D;
+    width: 70px;
+    margin: 10px;
+    padding: 10px;
+    text-align: center;
+}
+
+
+/* FRESCURA A MAIS */
+
+.button-inputs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 350px;
+  user-select: none;
+  gap: 12px; /* substitui margin */
+}
+
+.button-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  min-height: 80px;
+  border-radius: 0.5rem;
+  border: 2px solid #b5bfd9;
+  background-color: #fff;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  transition: 0.15s ease;
+  cursor: pointer;
+  position: relative;
+  color: #707070;
+  font-size: 13px;
+  outline: none;
+}
+
+.button-tile:hover {
+  border-color: #2260ff;
+}
+
+.button-tile.active,
+.button-tile:focus {
+  border-color: #2260ff;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  color: #2260ff;
+}
+
+.button-tile.active .button-icon svg,
+.button-tile:focus .button-icon svg {
+  fill: #2260ff;
+}
+
+.button-icon svg {
+  width: 2rem;
+  height: 2rem;
+  fill: #494949;
+  transition: fill 0.3s ease;
+}
+
+.button-label {
+  margin-top: 0.25rem;
+  text-align: center;
+  transition: color 0.375s ease;
+}
+
+.button-icon img {
+  max-width: 70%;    /* Não excede a largura do container */
+  max-height: 70%;   /* Não excede a altura do container */
+  object-fit: contain; /* Mantém a proporção da imagem e a encaixa */
+  display: block;
+  padding-left: 8px;    /* Remove espaços em branco abaixo da imagem */
+}

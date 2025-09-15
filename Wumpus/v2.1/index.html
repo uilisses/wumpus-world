@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mundo de Wumpus</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css">
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-thin-straight/css/uicons-thin-straight.css">
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-solid-rounded/css/uicons-solid-rounded.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>Wumpus World V2</h1>
+             
+        <div class="controls">
+            <label for="boardSize">Tamanho do Tabuleiro: </label>
+            <input type="number" id="boardSize" value="4" min="4" max="20" placeholder="Tamanho do Tabuleiro (4-20)">
+            <button id="startGame">Iniciar Jogo</button>
+        </div>
+      
+        <div class="game-info" style="display: none;">
+
+            <div class="control-options">
+                <button id="resetGame">Novo Jogo</button>
+                <button id="resetBoard">Reinicar</button>
+                <button id="exitGame">Sair</button>
+            </div>
+
+            <button id="modeToggle">Modo Atual: Manual</button>
+
+            <div class="auto-agent-controls" style="display: none;">
+                <button id="agentV1">Iniciar Agente v1 (Aleatório)</button>
+            </div>
+
+            <div class="game-stats">
+                <div id="scoreDisplay">Pontos: 0</div>
+                <div id="movesDisplay">Movimentos: 0</div>
+            </div>
+
+            <div id="gameBoard" class="game-board"></div>
+            <div id="gameMessage"></div>
+
+            <div class="agent-controls" style="display:none;">
+                <div class="control-row">
+                    <button id="moveNorth"><i class="fi fi-sr-arrow-alt-square-up"></i> Norte</button>
+                </div>
+                <div class="control-row">
+                    <button id="moveWest"><i class="fi fi-sr-arrow-alt-square-left"></i> Oeste</button>
+                    <button id="moveSouth"><i class="fi fi-sr-arrow-alt-square-down"></i> Sul</button>
+                    <button id="moveEast"><i class="fi fi-sr-arrow-alt-square-right"></i> Leste</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <script src="wumpus_world.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
